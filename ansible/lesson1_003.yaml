@@ -1,0 +1,30 @@
+---
+- name: task3
+  hosts: nodes
+  become: yes
+  become_method: sudo
+  become_user: root
+
+  vars:
+    option1: net.ifnames
+    option2: biosdevname
+    value: 0
+
+  tasks:
+  - name: "adding parameters_1"
+    lineinfile:
+       state: present
+       dest: /etc/default/grub
+       backrefs: yes
+       regexp: '^(GRUB_CMDLINE_LINUX=(?:(?![" ]{{ option1 | regex_escape }}=).)*)(?:[" ]{{ option1 | regex_escape }}=\S+)?(.*")$'
+       line: '\1 {{ option1 }}={{ value }} \2'
+  - name: "adding parameters_2"
+    lineinfile:
+       state: present
+       dest: /etc/default/grub
+       backrefs: yes
+       regexp: '^(GRUB_CMDLINE_LINUX=(?:(?![" ]{{ option2 | regex_escape }}=).)*)(?:[" ]{{ option2 | regex_escape }}=\S+)?(.*")$'
+       line: '\1 {{ option2 }}={{ value }}\2'
+  - name: "Execute grub2-mkconfig"
+    command:
+       cmd: grub2-mkconfig -o /boot/grub2/grub.cfg

@@ -1,0 +1,29 @@
+---
+- name: task2
+  hosts: nodes
+  become: yes
+  become_method: sudo
+  become_user: root
+
+  tasks:
+  - name: "delete httpd"
+    yum:
+       name: httpd
+       state: absent
+  - name: "delete file"
+    file:
+      state: absent
+      path: "/var/www/html/index.html"
+  - name: "enable farewall"
+    service:
+       name: firewalld
+       state: started
+  - name: "close port"
+    firewalld:
+       port: 80/tcp
+       permanent: yes
+       state: disabled
+  - name: "restart service"
+    service:
+       name: firewalld
+       state: restarted

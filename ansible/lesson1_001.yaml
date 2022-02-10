@@ -1,0 +1,33 @@
+---
+- name: task1
+  hosts: nodes
+  become: yes
+  become_method: sudo
+  become_user: root
+
+  tasks:
+  - name: "install httpd"
+    yum:
+       name: httpd
+       state: latest
+  - name: "Enabling service"
+    service:
+       name: httpd
+       state: started
+  - name: "Create file"
+    copy:
+      dest: "/var/www/html/index.html"
+      content: "Welcome to my web server"
+  - name: "enable farewall"
+    service:
+       name: firewalld
+       state: started
+  - name: "open port"
+    firewalld:
+       port: 80/tcp
+       permanent: yes
+       state: enabled
+  - name: "restart service"
+    service:
+       name: firewalld
+       state: restarted
